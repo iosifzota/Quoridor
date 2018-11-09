@@ -21,7 +21,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
 # Executable
-add_executable(${PROJECT_NAME} Main.cpp)
+add_executable(${PROJECT_NAME} Main.cpp Piece.cpp)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR
    ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
