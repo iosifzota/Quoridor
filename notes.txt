@@ -1,0 +1,22 @@
+* Piece
+position: pair<x, y>
+enum Direction(NONE, NORHT, SOUTH, EAST, WEST)
+** Pawn
+origin: Direction
+** Wall
+direction: Direction
+* Board
+pieces: array< 9, array<9, Cell>>
+* Cell
+ocupant: optional<Pawn>>
+trench:  Trench
+* Trench
+NorthOcupied: bit;
+SouthOcupied: bit;
+EastOcupied: bit;
+WestOcupied: bit;
+* PiecesPool
+pawns: array<4, Pawn>
+walls: array<20, Wall>
+* Player<int N>
+walls: array<N, Wall>
