@@ -3,9 +3,10 @@
 class Wall :
 	public Piece
 {
+private:
+	Direction m_direction;
 public:
 	Wall();
-	Wall(const Position&);
-	Direction origin;
+	Wall(const Position&,Direction);
 };
 
