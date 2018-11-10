@@ -3,20 +3,32 @@ position: pair<x, y>
 enum Direction(NONE, NORHT, SOUTH, EAST, WEST)
 ** Pawn
 origin: Direction
-** Wall
+** PlaceableWall (private constructor)
 direction: Direction
+instance: PlaceableWall
+used: bool
+getInstance() { iff !used; used = true } -> instance;
+retInstance() { used = false }
 * Board
-pieces: array< 9, array<9, Cell>>
-* Cell
-ocupant: optional<Pawn>>
-trench:  Trench
-* Trench
-NorthOcupied: bit;
-SouthOcupied: bit;
-EastOcupied: bit;
-WestOcupied: bit;
+board: matrix<optional<Pawn>>
+trenchNorthSouth: Trench<9, 9-1>
+trenchEastWest: Trench<9-1, 9>
+* Trench<int N, int M>
+grid: bitset_matrix<N, M>
+atForward(n, m) -> grid[n][m] const&
+max = max{N, M}
+atBackward(n, m) -> gird[n - (max - N)][ m - (max - M)] const&  // _Last_
 * PiecesPool
 pawns: array<4, Pawn>
-walls: array<20, Wall>
+wallsCount: size_t
+placeableWall: PlaceableWall
+getPlaceableWallRef() -> placeableWall&
 * Player<int N>
-walls: array<N, Wall>
+wallsCount: size_t
+placeableWallRef;
+pickWall(...) -> PlaceableWall::getInstance(...)
+placeWall(PlaceableWall& w, Board& b) { tryApplyWall(w, b); w.retInstance() } noexcept;
+
+* Footnotes
+using matrix = array<N, array<M, T>>
+using bitset_matrix = array<N, bitset<M>>
