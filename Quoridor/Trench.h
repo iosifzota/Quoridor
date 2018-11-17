@@ -1,22 +1,22 @@
 #pragma once
+#include <array>
+#include <algorithm>
+using std::array;
+using std::size_t;
+
+template <size_t N, size_t M, typename T>
 class Trench
 {
 public:
-	Trench();
-	void SetNorthOcupied(char n);
-	void SetSouthOcupied(char s);
-	void SetEastOcupied(char e);
-	void SetWestOcupied(char w);
-
-	char GetNorthOcupied() const;
-	char GetSouthOcupied() const;
-	char GetEastOcupied() const;
-	char GetWestOcupied() const;
-
-private:
-	char NorthOcupied:1;
-	char SouthOcupied:1;
-	char EastOcupied:1;
-	char WestOcupied:1;
+	Trench() =default;
+	matrix<N, M, bool> m_grid;
+	bool AtForward(size_t i, size_t j) const
+	{
+		return grid[i][j];
+	}
+	bool AtBackward(size_t i, size_t j) const
+	{
+		constexpr size_t max = std::max(N, M);
+		return grid[i - (max - N)][j - (max - M];
+	}
 };
-
