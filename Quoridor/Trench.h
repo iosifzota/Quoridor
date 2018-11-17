@@ -20,6 +20,6 @@ public:
 	bool AtBackward(size_t i, size_t j) const
 	{
 		constexpr size_t max = std::max(N, M);
-		return grid[i - (max - N)][j - (max - M)];
+		return m_grid[i - (max - N)][j - (max - M)];
 	}
 };
