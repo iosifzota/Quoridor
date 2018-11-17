@@ -15,11 +15,23 @@ public:
 	matrix<N, M, bool> m_grid;
 	bool AtForward(size_t i, size_t j) const
 	{
+		// FIX ME
+		if (i >= N || j >= M)
+			throw "[Error] Out of bounds access";
 		return m_grid[i][j];
 	}
 	bool AtBackward(size_t i, size_t j) const
 	{
 		constexpr size_t max = std::max(N, M);
-		return m_grid[i - (max - N)][j - (max - M)];
+
+		// effective indecies
+		i -= (max - N);
+		j -= (max - M);
+
+		// FIX ME
+		if (i >= N || j >= M)
+			throw "[Error] Out of bounds access";
+
+		return m_grid[i][j];
 	}
 };
