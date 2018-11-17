@@ -30,5 +30,8 @@ pickWall(...) -> PlaceableWall::getInstance(...)
 placeWall(PlaceableWall& w, Board& b) { tryApplyWall(w, b); w.retInstance() } noexcept;
 
 * Footnotes
+
+template<int N, int M, typename T>
 using matrix = array<N, array<M, T>>
+template<int N, int M>
 using bitset_matrix = array<N, bitset<M>>
