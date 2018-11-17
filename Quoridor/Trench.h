@@ -4,7 +4,10 @@
 using std::array;
 using std::size_t;
 
-template <size_t N, size_t M, typename T>
+template < int N, int M, typename T>
+using matrix = array<array<T, M>, N>;
+
+template <size_t N, size_t M>
 class Trench
 {
 public:
@@ -12,11 +15,11 @@ public:
 	matrix<N, M, bool> m_grid;
 	bool AtForward(size_t i, size_t j) const
 	{
-		return grid[i][j];
+		return m_grid[i][j];
 	}
 	bool AtBackward(size_t i, size_t j) const
 	{
 		constexpr size_t max = std::max(N, M);
-		return grid[i - (max - N)][j - (max - M];
+		return grid[i - (max - N)][j - (max - M)];
 	}
 };
