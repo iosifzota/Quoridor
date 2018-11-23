@@ -14,9 +14,10 @@ public:
                 East,
                 West
         };
+		static const Position INVALID_POSITION;
 
         Piece();
-        Piece(const Position&);
+        explicit Piece(const Position&);
 
         void SetPosition(const Position&);
         const Position& GetPosition() const;

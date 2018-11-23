@@ -1,5 +1,7 @@
 #include "Piece.h"
 
+const Position Piece::INVALID_POSITION{ -1, -1 };
+
 Piece::Piece() :
         m_position{-1, -1}
 {
