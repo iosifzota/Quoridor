@@ -21,6 +21,6 @@ public:
         void SetPosition(const Position&);
         const Position& GetPosition() const;
 
-private:
+protected:
         Position m_position;
 };
