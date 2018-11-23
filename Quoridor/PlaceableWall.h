@@ -9,12 +9,12 @@ class PlaceableWall:
 private:
 	static optional<PlaceableWall> m_instance;
 	
-	PlaceableWall() = default;
-	PlaceableWall(Position p, Direction d);
-	
 	Direction m_direction;
 
 public:
+	PlaceableWall() = default;
+	PlaceableWall(Position p, Direction d);
+
 	static PlaceableWall& GetInstance();
 };
 

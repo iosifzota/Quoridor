@@ -7,9 +7,9 @@ PlaceableWall::PlaceableWall(Position p, Direction d) :Piece(p), m_direction(d)
 
 PlaceableWall & PlaceableWall::GetInstance()
 {
-	if (m_instance->has_value())
+	if (m_instance.has_value())
 	{
-		m_instance->emplace();
+		m_instance.emplace();
 	}
-	return m_instance->value();
+	return m_instance.value();
 }
