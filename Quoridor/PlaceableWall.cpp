@@ -1,15 +1,17 @@
 #include "PlaceableWall.h"
 
-PlaceableWall::PlaceableWall(Position p, Direction d) :Piece(p), m_direction(d)
+// one instance
+PlaceableWall PlaceableWall::m_instance(Piece::INVALID_POSITION, Piece::Direction::None);
+
+PlaceableWall::PlaceableWall(const Position& pos, Direction direction) :
+	Piece(pos), m_direction(direction)
 {
 	/* empty */
 }
 
-PlaceableWall & PlaceableWall::GetInstance()
+PlaceableWall& PlaceableWall::GetInstance(Position pos, Direction direction)
 {
-	if (m_instance.has_value())
-	{
-		m_instance.emplace();
-	}
-	return m_instance.value();
+	m_instance.m_direction = direction;
+	m_instance.m_position = pos;
+	return m_instance;
 }
