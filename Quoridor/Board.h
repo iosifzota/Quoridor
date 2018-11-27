@@ -1,15 +1,20 @@
 #pragma once
 
-#include "matrix.h"
+#include "using_matrix.h"
 #include "Pawn.h"
+#include "Trench.h"
+#include <ostream>
 #include <optional>
 #include <functional>
 #include <variant>
 using std::optional;
 using std::function;
-using std::variant;
+using std::ostream;
 
-using PawnOpt = optional<Pawn>;
+using std::variant;
+/* TODO: implement option<T> : enum { Some<T>, Err } <=> (somewhat) variant<T, Err> */
+
+using Direction = Piece::Direction;
 
 class Board
 {
@@ -21,7 +26,14 @@ public:
                 Success
         };
         // Ideea: make_position<1>(x, y) that return the same instance (no?)
-        void MovePawn(PawnOpt& candidate, Piece::Direction, function<void(MoveResult)>); // HERE
+        void MovePawn(Pawn& candidate, Piece::Direction, function<void(MoveResult, Pawn&, Direction)>);
+		Pawn& UpdateStateUponPassingTrench(Pawn&, Direction);
+
+		friend ostream& operator << (ostream&, const Board&);
+
+		// working on
+		Board();
+
 
 public:
         /* Learned (https://en.cppreference.com/w/cpp/language/definition):
@@ -34,9 +46,9 @@ public:
            If a refereance to any of these atributes is taken, they are odr-used
            therefore the definition must be included in the compile unit,
            and it must be defined only once in the whole program.
-           So if this header is include in two cpp files that are linked
-           together and both take a reference to WIDTH/HEIGHT there will be
-           two definitions of the atributes and the linking will fail(undefined reference ...) [TO CHECK] .
+           If this header is include in two cpp files that are linked
+           together and both take a reference to WIDTH/HEIGHT, there will be
+           two definitions of the atributes and linking will fail(undefined reference ...) [TO CHECK].
          */
 private: // TODO: private -> public?
         static const size_t WIDTH = 9;
