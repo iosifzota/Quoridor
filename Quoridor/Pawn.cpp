@@ -1,6 +1,8 @@
 #include "Pawn.h"
 
-Pawn::Pawn()
+Pawn::Pawn() :
+	Piece(Piece::INVALID_POSITION),
+	m_origin(Piece::INVALID_DIRECTION)
 {
 }
 Pawn::Pawn(const Position& p, Direction origin):
