@@ -4,8 +4,7 @@
 
 Pawn& Board::UpdateStateUponPassingTrench(Pawn& passing, Direction direction)
 {
-	req(Direction::None != direction);
-
+	req(Piece::validDirection(direction));
 	auto[x_old, y_old] = passing.AccessPosition(); // save current position
 	req(tiles[x_old][y_old].has_value());
 
@@ -17,21 +16,20 @@ Pawn& Board::UpdateStateUponPassingTrench(Pawn& passing, Direction direction)
 	req(!tiles[x][y].has_value(), "Update only after check.");
 
 	tiles[x][y].swap(tiles[x_old][y_old]);
-	req(tiles[x][y].has_value());
+	req(tiles[x][y].has_value(), "[Debug]");
 	req(!tiles[x_old][y_old].has_value());
 	req(&tiles[x][y].value() != &passing, "Testing");
 
 	return tiles[x][y].value();
 }
 
-
-
 void Board::MovePawn(Pawn& candidate, Direction direction, function<void(MoveResult, Pawn&, Direction)> postMoveAction)
 {
 	// TODO try and see what candidate has after UpdateState
 	auto result = MoveResult::BlockedDirection;
-	Pawn *movedPawn = nullptr;
+	Pawn *movedPawn = nullptr; // TODO ref_wrapper
 	auto&[x, y] = candidate.AccessPosition();
+
 	switch (direction) {
 	case Direction::North: case Direction::East:
 		if (!trenchNorthSouth.AtBackward(x, y)) {

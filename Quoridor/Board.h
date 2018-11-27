@@ -20,7 +20,6 @@ class Board
 {
 public:
 	enum class MoveResult : char {
-		AbsentCandidate,
 		InvalidDirection,
 		BlockedDirection,
 		Success
