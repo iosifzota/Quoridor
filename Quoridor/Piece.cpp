@@ -1,10 +1,11 @@
 #include "Piece.h"
 
 const Position Piece::INVALID_POSITION{ -1, -1 };
-array<Position, 5> Piece::directionMask{};
+const Piece::Direction Piece::INVALID_DIRECTION = Piece::Direction::None;
+array<Position, Piece::DIRECTION_COUNT> Piece::directionMask{};
 
 Piece::Piece() :
-        m_position{-1, -1}
+        m_position{INVALID_POSITION}
 {
 	InitDirectionMask();
 }
@@ -26,9 +27,19 @@ static void addPosition(Position& dest, const Position& other)
 	y_dest += y_other;
 }
 
-void Piece::ApplyDirectionMask(Position& pos, Piece::Direction direction)
+void Piece::ApplyDirectionMask(Position& pos, Direction direction)
 {
 	addPosition(pos, directionMask[(int)direction]);
+}
+
+bool Piece::validDirection(Direction direction)
+{
+	return (direction != INVALID_DIRECTION) ? true : false;
+}
+
+bool Piece::validPosition(const Position& pos)
+{
+	return (pos != INVALID_POSITION) ? true : false;
 }
 
 // FIX ME
@@ -40,7 +51,7 @@ void Piece::InitDirectionMask()
 
 	directionMask.at((int)Direction::North).first = -1;
 	directionMask.at((int)Direction::South).first = +1;
-	directionMask.at((int)Direction::East).second = -1;
-	directionMask.at((int)Direction::None).second = +1;
+	directionMask.at((int)Direction::West).second = -1;
+	directionMask.at((int)Direction::East).second = +1;
 	initalized = true;
 }
