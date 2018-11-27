@@ -6,7 +6,8 @@ PiecesHandle::PiecesHandle(size_t playerCount) :
 	m_usedPawn(),
 	m_wallsPerPlayer(TOTAL_WALLS / playerCount)
 {
-	//m_playerCount < MAX_PLAYERS && m_playerCount > 1
+	if (m_playerCount != 2 && m_playerCount != 4) // fixme
+		throw "Number of players must be 2 or 4";
 }
  
 optional<ref_wrapper<Pawn>> PiecesHandle::GetPawn(Direction direction)
