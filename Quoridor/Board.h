@@ -45,6 +45,6 @@ private: // TODO: private -> public?
 private:
 
         matrix<optional<Pawn>, WIDTH> tiles;
-        Trench<WIDTH, HEIGHT-1> trenchNorthSouth;
-        Trench<WIDTH-1, HEIGHT> trenchEastWest;
+        Trench<WIDTH-1, HEIGHT> trenchNorthSouth;
+        Trench<WIDTH, HEIGHT-1> trenchEastWest;
 };
