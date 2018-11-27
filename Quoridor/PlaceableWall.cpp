@@ -1,7 +1,7 @@
 #include "PlaceableWall.h"
 
 // one instance
-PlaceableWall PlaceableWall::m_instance(Piece::INVALID_POSITION, Piece::Direction::None);
+PlaceableWall PlaceableWall::m_instance(Piece::INVALID_POSITION, Piece::INVALID_DIRECTION);
 
 PlaceableWall::PlaceableWall(const Position& pos, Direction direction) :
 	Piece(pos), m_direction(direction)
