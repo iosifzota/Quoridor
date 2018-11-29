@@ -3,16 +3,12 @@
 #include "using_matrix.h"
 #include "Pawn.h"
 #include "Trench.h"
+#include "PiecesHandle.h"
+#include "util_decls.h"
 #include <ostream>
-#include <optional>
-#include <functional>
-#include <variant>
-using std::optional;
-using std::function;
 using std::ostream;
 
-using std::variant;
-/* TODO: implement option<T> : enum { Some<T>, Err } <=> (somewhat) variant<T, Err> */
+/* IDEA: implement option<T> : enum { Some<T>, Err } <=> (somewhat) variant<T, Err> */
 
 using Direction = Piece::Direction;
 
@@ -30,8 +26,8 @@ public:
 
 	friend ostream& operator << (ostream&, const Board&);
 
-	// working on
-	Board();
+	// working on here (last time i changed tiles from optional -> OptRef)
+	Board(GameType);
 
 
 public:
@@ -49,13 +45,14 @@ public:
 	   together and both take a reference to WIDTH/HEIGHT, there will be
 	   two definitions of the atributes and linking will fail(undefined reference ...) [TO CHECK].
 	 */
-private: // TODO: private -> public?
+private: // WARNING: private -> public?
 	static const size_t WIDTH = 9;
 	static const size_t HEIGHT = 9;
 
 private:
-	// TODO: optional -> reference_wrapper
-	matrix<optional<Pawn>, WIDTH> tiles;
+	matrix<OptRef<Pawn>, WIDTH> tiles;
 	Trench<WIDTH - 1, HEIGHT> trenchNorthSouth;
 	Trench<WIDTH, HEIGHT - 1> trenchEastWest;
+
+	PiecesHandle m_pieces;
 };

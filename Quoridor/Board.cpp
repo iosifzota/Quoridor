@@ -17,29 +17,28 @@ Pawn& Board::UpdateStateUponPassingTrench(Pawn& passing, Direction direction)
 
 	tiles[x][y].swap(tiles[x_old][y_old]);
 	req(tiles[x][y].has_value(), "[Debug]");
-	req(!tiles[x_old][y_old].has_value());
-	req(&tiles[x][y].value() != &passing, "Testing");
+	req(!tiles[x_old][y_old].has_value(), "[Debug]");
+	req(&tiles[x][y].value().get() == &passing, "[Debug]");
 
-	return tiles[x][y].value();
+	return passing;
 }
 
 void Board::MovePawn(Pawn& candidate, Direction direction, function<void(MoveResult, Pawn&, Direction)> postMoveAction)
 {
-	// TODO try and see what candidate has after UpdateState
+	// DONE try and see what candidate state is after UpdateState
 	auto result = MoveResult::BlockedDirection;
-	Pawn *movedPawn = nullptr; // TODO ref_wrapper
 	auto&[x, y] = candidate.AccessPosition();
 
 	switch (direction) {
 	case Direction::North: case Direction::East:
 		if (!trenchNorthSouth.AtBackward(x, y)) {
-			movedPawn = &UpdateStateUponPassingTrench(candidate, direction);
+			UpdateStateUponPassingTrench(candidate, direction);
 			result = MoveResult::Success;
 		}
 		break;
 	case Direction::South: case Direction::West:
 		if (!trenchNorthSouth.AtForward(x, y)) {
-			movedPawn = &UpdateStateUponPassingTrench(candidate, direction);
+			UpdateStateUponPassingTrench(candidate, direction);
 			result = MoveResult::Success;
 		}
 		break;
@@ -47,20 +46,24 @@ void Board::MovePawn(Pawn& candidate, Direction direction, function<void(MoveRes
 		result = MoveResult::InvalidDirection;
 	}
 
-	if (MoveResult::Success == result) {
-		req(movedPawn != nullptr);
-		postMoveAction(result, *movedPawn, direction);
-		return;
-	}
-	req(movedPawn == nullptr);
 	postMoveAction(result, candidate, direction);
 }
 
 
-Board::Board() {
+Board::Board(GameType gameType) :
+	m_pieces{gameType}
+{
 	Position pos{ 0, 0 };
-	tiles[0][0].emplace(pos, Direction::North);
-	MovePawn(tiles[0][0].value(), Direction::South,
+	auto&[x, y] = pos;
+
+	Pawn& pawn = m_pieces.GetPawn(Direction::North, pos).value();
+	pawn.AccessPosition() = pos;
+
+	tiles[y][x].emplace(pawn);
+
+	std::cout << *this << "\n------------------------------------\n";
+
+	MovePawn(tiles[y][x].value(), Direction::South,
 		[](MoveResult res, Pawn& pawn, Direction direction)
 	{
 	});
@@ -72,8 +75,7 @@ ostream& operator<<(ostream& out, const Board& board)
 	auto& trenchEastWest = board.trenchEastWest;
 	auto& trenchNorthSouth = board.trenchNorthSouth;
 	const char* temp = nullptr;
-	// TODO: implement range
-	// idea: matrix(char) display
+	// IDEA: implement range
 	for (size_t row = 0; row < tiles.size(); ++row) {
 		for (size_t col = 0; col < tiles.size(); ++col) {
 			temp = tiles[row][col].has_value() ? " x " : "   ";
@@ -95,3 +97,9 @@ ostream& operator<<(ostream& out, const Board& board)
 	}
 	return out;
 }
+
+
+//void Board::InitPlacePawn(Pawn& pawn, const Position& pos)
+//{
+//	auto&[row, col] = pos;	
+//}
