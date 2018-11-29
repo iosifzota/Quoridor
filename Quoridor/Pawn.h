@@ -15,5 +15,3 @@ public:
 private:
 	Direction m_origin;
 };
-
-

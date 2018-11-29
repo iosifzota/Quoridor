@@ -11,7 +11,6 @@ void print_green(const char *);
 #define EXPAND__MACRO( x ) x
 #define GET__one_two(_1, _2, NAME, ...) NAME
 
-/* TODO: req with only one arg: parse the *code* using a function (if_cpp constexpr fn). */
 #define req(...) EXPAND__MACRO(GET__one_two(__VA_ARGS__, req__two, req__one)(__VA_ARGS__))
 
 #define req__one(test__condition)                                       \
