@@ -1,23 +1,20 @@
 #pragma once
 
 #include "Pawn.h"
+#include "util_decls.h"
 #include <array>
-#include <optional>
-#include <functional>
 using std::array;
 using std::size_t;
-using std::optional;
-using Direction = Piece::Direction;
 
-template <typename T>
-using ref_wrapper = std::reference_wrapper<T>;
+using Direction = Piece::Direction;
 
 class PiecesHandle
 {
 public:
-	PiecesHandle(size_t);
+	PiecesHandle(GameType); // from util_decls.h
 
-	optional<ref_wrapper<Pawn>> GetPawn(Direction direction);
+	OptRef<Pawn> GetPawn(Direction direction);
+	OptRef<Pawn> GetPawn(Direction direction, const Position&);
 	const size_t m_wallsPerPlayer;
 
 private:
@@ -28,5 +25,5 @@ private:
 
 	// helpers
 	size_t m_pawnsCount;
-	Piece::ValidDirectionChecklist m_usedPawn;
+	Piece::DirectionChecklist m_usedPawn;
 };

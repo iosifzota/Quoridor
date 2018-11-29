@@ -1,27 +1,32 @@
 #include "PiecesHandle.h"
 
-PiecesHandle::PiecesHandle(size_t playerCount) :
-	m_playerCount(playerCount),
+PiecesHandle::PiecesHandle(GameType gameType) :
+	m_playerCount((int)gameType),
 	m_pawnsCount(),
 	m_usedPawn(),
-	m_wallsPerPlayer(TOTAL_WALLS / playerCount)
+	m_wallsPerPlayer(TOTAL_WALLS / (int)gameType)
 {
-	if (m_playerCount != 2 && m_playerCount != 4) // fixme
-		throw "Number of players must be 2 or 4";
+	static_assert((int)GameType::TwoPlayers == 2);
+	static_assert((int)GameType::FourPlayers == 4);
 }
- 
-optional<ref_wrapper<Pawn>> PiecesHandle::GetPawn(Direction direction)
+
+OptRef<Pawn> PiecesHandle::GetPawn(Direction direction, const Position& pos)
 {
 	int effectiveIndex = (int)direction;
-	if (effectiveIndex < 0 || effectiveIndex > MAX_PLAYERS)
+	if (effectiveIndex < 0 || effectiveIndex > MAX_PLAYERS) // IDEA: interval test function
 		return {};
-	
+
 	if (m_pawnsCount < m_playerCount && !m_usedPawn.test(effectiveIndex)) {
 		++m_pawnsCount;
 		m_usedPawn.set(effectiveIndex);
 
-		return std::ref(m_pawns[effectiveIndex].InitOrigin(direction));
+		return std::ref(m_pawns[effectiveIndex].InitOrigin(direction).InitPosition(pos));
 	}
 
 	return {};
+}
+
+OptRef<Pawn> PiecesHandle::GetPawn(Direction direction)
+{
+	return GetPawn(direction, Piece::INVALID_POSITION);
 }
