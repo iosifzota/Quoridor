@@ -28,7 +28,7 @@ public:
 // helpers
 public:
 	// declarations
-	using ValidDirectionChecklist = bitset<DIRECTION_COUNT>;
+	using DirectionChecklist = bitset<DIRECTION_COUNT>;
 
 	// procedures
 	static void ApplyDirectionMask(Position&, Direction);

@@ -55,3 +55,13 @@ void Piece::InitDirectionMask()
 	directionMask.at((int)Direction::East).second = +1;
 	initalized = true;
 }
+
+// dead code
+static void assertDirectionAsIndecies()
+{
+	static_assert((int)Piece::Direction::North == 0);
+	static_assert((int)Piece::Direction::South == 1);
+	static_assert((int)Piece::Direction::East == 2);
+	static_assert((int)Piece::Direction::West == 3);
+	static_assert((int)Piece::Direction::None == 15);
+}
