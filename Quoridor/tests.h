@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Board.h"
+#include "util_decls.h"
 #include "PiecesHandle.h"
 #include <iostream>
 using std::cout;
@@ -18,14 +19,14 @@ void tests()
 void test_board()
 {
 	cout << __FUNCTION__ << ":\n";
-	Board b;
+	Board b(GameType::TwoPlayers);
 	cout << b;
 }
 
 void test_pieces_handle()
 {
 	cout << __FUNCTION__ << ":\n";
-	PiecesHandle ph(3);
+	PiecesHandle ph(GameType::TwoPlayers);
 
 	if (auto pawnOpt = ph.GetPawn(Direction::North)) {
 		Pawn& pawn = pawnOpt.value().get();
