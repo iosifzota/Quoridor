@@ -163,67 +163,77 @@ void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
 	}
 }
 
-void test_pieces_handle()
+using ParseResult = variant<Direction, Place, Err>;
+
+template<GameState gameState>
+variant<ParseResult, monostate> applyParser(GameStateParser<gameState> parser, const string_view& line)
 {
-	cout << __FUNCTION__ << ":\n";
-	PiecesHandle ph(GameType::TwoPlayers);
+	variant<ParseState, string_view> parseResult = parser(line);
 
-	if (auto pawnOpt = ph.GetPawn(Direction::North)) {
-		Pawn& pawn = pawnOpt.value().get();
-		cout << "Pawn: " << (int)pawn.GetOrigin() << endl;
-	}
+	if (std::holds_alternative<ParseState>(parseResult)) {
+		auto&[gameStateResulted, parseOption] = std::get<ParseState>(parseResult);
 
-	if (auto pawnOpt = ph.GetPawn(Direction::North)) {
-		Pawn& pawn = pawnOpt.value().get();
-		cout << "Pawn: " << (int)pawn.GetOrigin() << endl;
-	}
+		req(gameState == gameStateResulted);
 
-	if (auto pawnOpt = ph.GetPawn(Direction::South)) {
-		Pawn& pawn = pawnOpt.value().get();
-		cout << "Pawn: " << (int)pawn.GetOrigin() << endl;
+		switch (gameStateResulted)
+		{
+		case GameState::Moving:
+		{
+			auto direction = charToDirection(parseOption);
+			if (Direction::None == direction) {
+				return Exit("Goodbye!");
+			}
+			return direction;
+		}
+		case GameState::Placing:
+		{
+			// not good at all;
+			auto ioResult = input_to_place();
+			if (std::holds_alternative<Err>(ioResult))
+				return std::get<Err>(ioResult);
+			return std::get<Place>(ioResult);
+		}
+		case GameState::Quiting:
+			return Exit("Goodbye!");
+		}
 	}
+	return monostate{};
 }
 
 variant<Direction, Place, Err> read_input()
 {
 	auto gameState = GameState::Moving;
 
-	if (auto gameStateRead = input_to_state()) {
-		if (gameStateRead.value() != gameState)
-			gameState = gameStateRead.value();
-	}
+	string line;
+	cout << "\nAction: ";
+	std::getline(cin, line);
 
-	switch (gameState)
 	{
-	case GameState::Moving: {
-		auto ioResult = input_to_direction();
-
-		if (std::holds_alternative<string_view>(ioResult))
-			return Err(std::get<string_view>(ioResult).data());
-
-		// exit on None direction
-		auto direction = std::get<Direction>(ioResult);
-		if (Direction::None == direction) {
-			return Exit("Goodbye!");
-		}
-
-		return std::get<Direction>(ioResult);
+		auto parseResult = applyParser(Parse::Moving, line);
+		if (std::holds_alternative<ParseResult>(parseResult))
+			return std::get<ParseResult>(parseResult);
 	}
-	case GameState::Placing: {
-		auto ioResult = input_to_place();
 
-		if (std::holds_alternative<Err>(ioResult))
-			return std::get<Err>(ioResult);
-		return std::get<Place>(ioResult);
+	{
+		auto parseResult = applyParser(Parse::Placing, line);
+		if (std::holds_alternative<ParseResult>(parseResult))
+			return std::get<ParseResult>(parseResult);
 	}
+
+	{
+		auto parseResult = applyParser(Parse::Quiting, line);
+		if (std::holds_alternative<ParseResult>(parseResult))
+			return std::get<ParseResult>(parseResult);
 	}
-	return Exit("[Debug]");
+
+	return Err("Invalid option.");
 }
 
 
 variant<Direction, string_view> input_to_direction()
 {
 	string line;
+	cout << "\nDirection: ";
 	std::getline(cin, line);
 
 	if (line.empty())
