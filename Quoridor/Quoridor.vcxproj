@@ -101,7 +101,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -143,21 +143,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Board.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Pawn.cpp" />
     <ClCompile Include="Piece.cpp" />
+    <ClCompile Include="PiecesHandle.cpp" />
     <ClCompile Include="PlaceableWall.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="req.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="matrix.h" />
     <ClInclude Include="Pawn.h" />
     <ClInclude Include="Piece.h" />
+    <ClInclude Include="PiecesHandle.h" />
     <ClInclude Include="PlaceableWall.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="req.hh" />
     <ClInclude Include="tests.h" />
     <ClInclude Include="Trench.h" />
     <ClInclude Include="using_matrix.h" />
+    <ClInclude Include="using_optional.h" />
+    <ClInclude Include="using_functional.h" />
+    <ClInclude Include="using_variant.h" />
+    <ClInclude Include="util_decls.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
