@@ -93,44 +93,70 @@ void test_board()
 	if (auto playerOpt = Player::MakePlayer(Direction::South, ph)) {
 		Player& player = playerOpt.value();
 
-		// here last time
-		cout << "\n---------SOUTH------------\n";
+		cout << "\n---------Playing------------\n";
 		b.SetupPlayer(player, 5);
 		cout << b << endl;
-		player_game_loop(player, b);
+
+		// here last time
+		player_game_loop(player, b, ph);
 	}
 }
 
-void player_game_loop(Player& player, Board& b)
+void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
 {
 	cout << __FUNCTION__ << " coming up.\n";
 	system(SYS_PAUSE); system(SYS_CLEAR);
 	cout << b << endl;
 
 	while (true) {
-		auto ioResult = input_to_direction();
+		variant<Direction, Place, Err> ioResult = read_input();
 
-		if (std::holds_alternative<string_view>(ioResult)) {
+		if (std::holds_alternative<Err>(ioResult)) {
+			const Err& err = std::get<Err>(ioResult);
+
 			system(SYS_CLEAR);
 			cout << b << endl;
-			cout << std::get<string_view>(ioResult);
+			cout << err.view();
+
+			if (err.exit()) {
+				break;
+			}
 			continue;
 		}
+		else if (std::holds_alternative<Direction>(ioResult)) {
+			auto direction = std::get<Direction>(ioResult);
 
-		auto direction = std::get<Direction>(ioResult);
+			req(Direction::None != direction);
 
-		if (Direction::None == direction) {
-			cout << "Finish" << endl;
-			break;
+			b.MovePawn(player, direction,
+				[&b](Board::MoveResult mr, Pawn&, Direction) {
+				system(SYS_CLEAR);
+				cout << b << endl;
+				if (Board::MoveResult::Success != mr)
+					cout << "Failed to move\n";
+			});
 		}
+		else {
+			auto&[position, direction] = std::get<Place>(ioResult);
 
-		b.MovePawn(player, direction,
-			[&b](Board::MoveResult mr, Pawn&, Direction) {
-			system(SYS_CLEAR);
-			cout << b << endl;
-			if (Board::MoveResult::Success != mr)
-				cout << "Failed to move\n";
-		});
+			if (auto placeableWallOpt = player.PickWall(position, direction, ph)) {
+
+				player.PlaceWall(b, placeableWallOpt.value(),
+					[&b](bool fited) {
+					if (fited) {
+						cout << "\nPlacing wall..." << endl;
+						system(SYS_CLEAR);
+						cout << b << endl;
+					}
+					else {
+						cout << "\nCannot place wall there." << endl;
+					}
+				});
+			}
+			else {
+				cout << "\nNo more walls available for player." << endl;
+			}
+		}
 	}
 }
 
