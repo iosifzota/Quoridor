@@ -4,6 +4,7 @@
 #include "util_decls.h"
 #include "PiecesHandle.h"
 #include "req.hh"
+#include "GameState.h"
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -15,11 +16,6 @@ using std::string_view;
 using std::cout;
 using std::endl;
 using std::cin;
-
-enum class GameState :char {
-	Moving,
-	Placing
-};
 
 using Place = std::pair<Position, Direction>;
 
@@ -45,12 +41,15 @@ struct Exit : Err {
 	{}
 };
 
+
+Direction charToDirection(char ch);
+
+
 void test_board();
 void test_pieces_handle();
 void player_game_loop(Player&, Board&, PiecesHandle& ph);
 variant<Direction, string_view> input_to_direction();
 variant<Position, string_view> input_to_position();
-optional<GameState> input_to_state();
 variant<Direction, Place, Err> read_input();
 
 variant<Place, Err> input_to_place();
@@ -74,22 +73,21 @@ void test_board()
 	Board b;
 	PiecesHandle ph(GameType::TwoPlayers);
 
+	// print empty board
 	cout << b;
 
+	// place North player and move South
 	if (auto playerOpt = Player::MakePlayer(Direction::North, ph)) {
 		Player& player = playerOpt.value();
 		b.SetupPlayer(player, 0);
-
-		cout << b;
 		b.MovePawn(player, Direction::South, onFail);
-		cout << "\n----------------------------------\n";
-		cout << b;
 	}
 
 	if (auto playerOpt = Player::MakePlayer(Direction::North, ph)) {
 		req(0, "North again?");
 	}
-
+	
+	// place South Player and start game loop
 	if (auto playerOpt = Player::MakePlayer(Direction::South, ph)) {
 		Player& player = playerOpt.value();
 
@@ -116,7 +114,7 @@ void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
 
 			system(SYS_CLEAR);
 			cout << b << endl;
-			cout << err.view();
+			cout << err.view() << endl;
 
 			if (err.exit()) {
 				break;
@@ -139,6 +137,9 @@ void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
 		else {
 			auto&[position, direction] = std::get<Place>(ioResult);
 
+			// idea: when direction for wall is choosen repaint the screen
+			// with E4, E1 etc.;
+
 			if (auto placeableWallOpt = player.PickWall(position, direction, ph)) {
 
 				player.PlaceWall(b, placeableWallOpt.value(),
@@ -149,6 +150,8 @@ void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
 						cout << b << endl;
 					}
 					else {
+						system(SYS_CLEAR);
+						cout << b << endl;
 						cout << "\nCannot place wall there." << endl;
 					}
 				});
@@ -250,36 +253,9 @@ variant<Direction, string_view> input_to_direction()
 	}
 }
 
-optional<GameState> input_to_state()
-{
-	string line;
-
-	cout << "\nAction: ";
-	std::getline(cin, line); // big time what?
-
-	if (line.empty())
-		return {};
-
-	string_view sv(line.c_str());
-	size_t optionIndex = sv.find_first_of("pPmM");
-
-	if (string_view::npos == optionIndex) {
-		return {};
-	}
-
-	switch (sv[optionIndex]) {
-	case 'p': case 'P':
-		return GameState::Placing;
-	case 'm': case 'M':
-		return GameState::Moving;
-	}
-	return {};
-}
-
 
 variant<Place, Err> input_to_place()
 {
-	cout << "\nDirection:";
 	auto ioResult = input_to_direction();
 
 	if (std::holds_alternative<string_view>(ioResult)) {
@@ -310,4 +286,46 @@ variant<Position, string_view> input_to_position()
 	std::getline(cin, line); // eat \n (really strange); see 'big time what?'
 
 	return position;
+}
+
+
+void test_pieces_handle()
+{
+	cout << __FUNCTION__ << ":\n";
+	PiecesHandle ph(GameType::TwoPlayers);
+
+	if (auto pawnOpt = ph.GetPawn(Direction::North)) {
+		Pawn& pawn = pawnOpt.value().get();
+		cout << "Pawn: " << (int)pawn.GetOrigin() << endl;
+	}
+
+	if (auto pawnOpt = ph.GetPawn(Direction::North)) {
+		Pawn& pawn = pawnOpt.value().get();
+		cout << "Pawn: " << (int)pawn.GetOrigin() << endl;
+	}
+
+	if (auto pawnOpt = ph.GetPawn(Direction::South)) {
+		Pawn& pawn = pawnOpt.value().get();
+		cout << "Pawn: " << (int)pawn.GetOrigin() << endl;
+	}
+}
+
+
+Direction charToDirection(char ch)
+{
+	switch (ch) {
+	case 'w': case 'W':
+		return Direction::North;
+	case 'a': case 'A':
+		return Direction::West;
+	case 's': case 'S':
+		return Direction::South;
+	case 'd': case 'D':
+		return Direction::East;
+	case 'q': case 'Q':
+		return Direction::None;
+	default:
+		req(0, "Should've not reached here.");
+		return Direction::None; // silence warning
+	}
 }
