@@ -5,9 +5,11 @@
 template <size_t Rows, size_t Cols>
 class Trench
 {
+private:
+	matrix<bool, Rows, Cols> m_grid{};
+
 public:
 	Trench() =default;
-	matrix<bool, Rows, Cols> m_grid{};
 	bool AtForward(size_t i, size_t j) const
 	{
 		if (i >= Rows || j >= Cols)
