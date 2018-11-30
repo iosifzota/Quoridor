@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Board.h"
 
 Player::Player(Pawn& pawn, PiecesHandle& ph) :
 	m_pawn{pawn},
@@ -29,4 +30,14 @@ Pawn& Player::AccessPawn()
 size_t Player::WallCount()
 {
 	return m_wallCount;
+}
+
+OptRef<PlaceableWall> Player::PickWall(const Position& position, Direction direction, PiecesHandle& ph)
+{
+	return ph.GetPlaceableWall(*this, position, direction);
+}
+
+void Player::PlaceWall(Board& board, PlaceableWall& placeableWall, function<void(bool)> proc)
+{
+	board.PlaceWall(*this, placeableWall, proc);
 }
