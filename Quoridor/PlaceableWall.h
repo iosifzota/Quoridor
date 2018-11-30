@@ -10,15 +10,15 @@ private:
 	static PlaceableWall m_instance;
 	PlaceableWall(const Position&, Direction);
 
+private:
+	Direction m_direction;
+
+public:
 	void SetDirection(Direction);
 	void SetPosition(const Position&);
 	Direction GetDirection() const;
 	const Position& GetPosition() const;
 
-private:
-	Direction m_direction;
-
-public:
 	static OptRef<PlaceableWall> GetInstance(const Position&, Direction);
 };
 
