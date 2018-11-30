@@ -27,7 +27,7 @@ Pawn& Player::AccessPawn()
 	return m_pawn;
 }
 
-size_t Player::WallCount()
+size_t Player::WallCount() const
 {
 	return m_wallCount;
 }
