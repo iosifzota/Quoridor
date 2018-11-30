@@ -36,4 +36,12 @@ public:
 	{
 		return Cols;
 	}
+
+	void OccupyTrench(size_t i, size_t j)
+	{
+		if (i >= Rows || j >= Cols)
+			return;
+
+		m_grid[i][j] = true;
+	}
 };
