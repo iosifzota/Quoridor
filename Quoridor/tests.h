@@ -168,7 +168,7 @@ variant<Direction, string_view> input_to_direction()
 	size_t optionIndex = sv.find_first_of("wasdWASDqQ");
 
 	static const string_view invalidMsg("Invalid option. Usage: wasd\n");
-	if (string::npos == optionIndex) {
+	if (string_view::npos == optionIndex) {
 		return invalidMsg;
 	}
 
