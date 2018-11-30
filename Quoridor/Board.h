@@ -52,7 +52,5 @@ private: // WARNING: private -> public?
 private:
 	matrix<OptRef<Pawn>, WIDTH> tiles;
 	Trench<WIDTH - 1, HEIGHT> trenchNorthSouth;
-	Trench<WIDTH, HEIGHT - 1> trenchEastWest;
-
-	PiecesHandle m_pieces;
+	Trench<WIDTH, HEIGHT - 1> trenchWestEast;
 };

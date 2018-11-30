@@ -82,7 +82,7 @@ ostream& operator<<(ostream& out, const Board& board)
 			out << temp;
 
 			if (col + 1 < tiles.size()) {
-				temp = trenchEastWest.AtForward(row, col) ? "|" : ":";
+				temp = trenchWestEast.AtForward(row, col) ? "|" : ":";
 				out << temp;
 			}
 		}
@@ -99,7 +99,7 @@ ostream& operator<<(ostream& out, const Board& board)
 }
 
 
-//void Board::InitPlacePawn(Pawn& pawn, const Position& pos)
-//{
-//	auto&[row, col] = pos;	
-//}
+Board::Board() :
+	m_usedPawns{}
+{
+}
