@@ -12,9 +12,10 @@ PiecesHandle::PiecesHandle(GameType gameType) :
 
 OptRef<Pawn> PiecesHandle::GetPawn(Direction direction, const Position& pos)
 {
-	int effectiveIndex = (int)direction;
-	if (effectiveIndex < 0 || effectiveIndex > MAX_PLAYERS) // IDEA: interval test function
+	if (!Piece::validDirection(direction))
 		return {};
+
+	int effectiveIndex = (int)direction;
 
 	if (m_pawnsCount < m_playerCount && !m_usedPawn.test(effectiveIndex)) {
 		++m_pawnsCount;
