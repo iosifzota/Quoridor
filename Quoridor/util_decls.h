@@ -2,6 +2,7 @@
 
 #include "using_functional.h"
 #include "using_optional.h"
+#include "using_variant.h"
 
 template <typename T>
 using OptRef = optional<ref_wrapper<T>>;
@@ -20,3 +21,11 @@ static inline const char* GameTypeToString(GameType gt)
 		return twoPlayersStr;
 	return fourPlayersStr;
 }
+
+#ifdef _WIN32
+#define SYS_CLEAR "cls"
+#define SYS_PAUSE "pause"
+#else
+#define SYS_CLEAR "clear"
+#define SYS_PAUSE ""
+#endif
