@@ -28,6 +28,10 @@ public:
 
 	Board();
 
+	// l^
+	void PlaceWall(Player&, PlaceableWall&, function<void(bool)>);
+	bool WAllFitsDo(const PlaceableWall&, function<void(const Position&, const Position&)>);
+
 	// last
 	bool IsPawnSynced(const Pawn&) const;
 	void SetupPlayer(Player& pawn, int lineIndex);

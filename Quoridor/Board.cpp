@@ -103,6 +103,75 @@ void Board::SetupPlayer(Player& player, int lineIndex)
 }
 
 
+void Board::PlaceWall(Player& player, PlaceableWall& placeableWall, function<void(bool)> proc)
+{
+	auto& pawn = player.AccessPawn();
+
+	if (!IsPawnSynced(player.AccessPawn()) ||
+		!m_usedPawns.test(static_cast<int>(pawn.GetOrigin())) ||
+		!player.WallCount()) {
+
+		proc(false);
+		return;
+	}
+
+	bool fits = WAllFitsDo(placeableWall,
+		[&](auto oneHalf, auto otherHalf) {
+		auto&[row, col] = oneHalf;
+		auto&[other_row, other_col] = otherHalf;
+
+		switch (placeableWall.GetDirection())
+		{
+		case Direction::North: case Direction::South:
+			trenchWestEast.OccupyTrench(row, col);
+			trenchWestEast.OccupyTrench(other_row, other_col);
+			break;
+
+		case Direction::West: case Direction::East:
+			trenchNorthSouth.OccupyTrench(row, col);
+			trenchNorthSouth.OccupyTrench(other_row, other_col);
+			break;
+		default:
+			break;
+		}
+	});
+
+	proc(fits);
+}
+
+bool Board::WAllFitsDo(const PlaceableWall& placeableWall, function<void(const Position&, const Position&)> onFit)
+{
+	auto&[row, col] = placeableWall.GetPosition();
+	auto direction = placeableWall.GetDirection();
+
+	Position otherHalf(placeableWall.GetPosition());
+	auto&[other_row, other_col] = otherHalf;
+
+	Piece::ApplyDirectionMask(otherHalf, direction);
+
+	switch (direction)
+	{
+	case Direction::North: case Direction::South:
+		if (!trenchWestEast.AtForward(row, col) &&
+			!trenchWestEast.AtForward(other_row, other_col))
+		{
+			onFit(placeableWall.GetPosition(), otherHalf);
+			return true;
+		}
+		break;
+
+	case Direction::West: case Direction::East:
+		if (!trenchNorthSouth.AtForward(row, col) &&
+			!trenchNorthSouth.AtForward(other_row, other_col))
+		{
+			onFit(placeableWall.GetPosition(), otherHalf);
+			return true;
+		}
+		break;
+	}
+	return false;
+}
+
 bool Board::IsPawnSynced(const Pawn& pawn) const
 {
 	if (!Piece::validDirection(pawn.GetOrigin()) ||
