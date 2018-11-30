@@ -14,14 +14,14 @@ Pawn::Pawn(const Position& p, Direction origin):
 
 Pawn& Pawn::InitOrigin(Direction direction)
 {
-	if (validDirection(direction))
+	if (!validDirection(m_origin))
 		m_origin = direction;
 	return *this;
 }
 
 Pawn& Pawn::InitPosition(const Position& p)
 {
-	if (validPosition(m_position))
+	if (!validPosition(m_position))
 		m_position = p;
 	return *this;
 }
