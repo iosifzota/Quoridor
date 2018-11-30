@@ -1,4 +1,5 @@
 #include "PiecesHandle.h"
+#include "Player.h"
 
 PiecesHandle::PiecesHandle(GameType gameType) :
 	m_playerCount((int)gameType),
@@ -30,4 +31,25 @@ OptRef<Pawn> PiecesHandle::GetPawn(Direction direction, const Position& pos)
 OptRef<Pawn> PiecesHandle::GetPawn(Direction direction)
 {
 	return GetPawn(direction, Piece::INVALID_POSITION);
+}
+
+// last
+OptRef<PlaceableWall> PiecesHandle::GetPlaceableWall(Player& player, const Position& pos, Direction direction)
+{
+	auto playerOrigin = player.AccessPawn().GetOrigin();
+	if (!Piece::validDirection(playerOrigin) ||
+		!m_usedPawn.test(static_cast<int>(playerOrigin)) ||
+		!player.WallCount()) {
+		return {};
+	}
+
+	return PlaceableWall::GetInstance(pos, direction);
+}
+
+// last
+bool PiecesHandle::IsValidPawn(const Pawn& pawn)
+{
+	if (!Piece::validDirection(pawn.GetOrigin()))
+		return false;
+	return m_usedPawn.test(static_cast<int>(pawn.GetOrigin()));
 }

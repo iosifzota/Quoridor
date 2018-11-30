@@ -2,9 +2,13 @@
 
 #include "Pawn.h"
 #include "util_decls.h"
+#include "PlaceableWall.h"
 #include <array>
 using std::array;
 using std::size_t;
+
+// forward decl
+class Player;
 
 using Direction = Piece::Direction;
 
@@ -15,7 +19,11 @@ public:
 
 	OptRef<Pawn> GetPawn(Direction direction);
 	OptRef<Pawn> GetPawn(Direction direction, const Position&);
+
+	OptRef<PlaceableWall> GetPlaceableWall(Player&, const Position&, Direction);
 	const size_t m_wallsPerPlayer;
+
+	bool IsValidPawn(const Pawn&);
 
 private:
 	const size_t m_playerCount;
