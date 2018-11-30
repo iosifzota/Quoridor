@@ -7,7 +7,7 @@ int main()
 {
         Piece p;
         Trench<3,3> t;
-		PlaceableWall& wallRef = PlaceableWall::GetInstance({ 1, 1 }, Piece::Direction::North);
+		PlaceableWall& wallRef = PlaceableWall::GetInstance({ 1, 1 }, Piece::Direction::North).value();
         tests();
 	return 0;
 }
