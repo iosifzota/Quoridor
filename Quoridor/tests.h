@@ -187,3 +187,65 @@ variant<Direction, string_view> input_to_direction()
 		return invalidMsg;
 	}
 }
+
+optional<GameState> input_to_state()
+{
+	string line;
+
+	cout << "\nAction: ";
+	std::getline(cin, line); // big time what?
+
+	if (line.empty())
+		return {};
+
+	string_view sv(line.c_str());
+	size_t optionIndex = sv.find_first_of("pPmM");
+
+	if (string_view::npos == optionIndex) {
+		return {};
+	}
+
+	switch (sv[optionIndex]) {
+	case 'p': case 'P':
+		return GameState::Placing;
+	case 'm': case 'M':
+		return GameState::Moving;
+	}
+	return {};
+}
+
+
+variant<Place, Err> input_to_place()
+{
+	cout << "\nDirection:";
+	auto ioResult = input_to_direction();
+
+	if (std::holds_alternative<string_view>(ioResult)) {
+		return Err(std::get<string_view>(ioResult).data());
+	}
+
+	auto direction = std::get<Direction>(ioResult);
+
+	if (Direction::None == direction) {
+		return Exit("Goodbye!");
+	}
+
+	return Place{ std::get<Position>(input_to_position()),  direction };
+}
+
+
+variant<Position, string_view> input_to_position()
+{
+	string line;
+	Position position;
+	auto&[row, col] = position;
+
+	cout << "\nPosition: ";
+	cout << "\nrow: ";
+	cin >> row;
+	cout << "\ncol: ";
+	cin >> col;
+	std::getline(cin, line); // eat \n (really strange); see 'big time what?'
+
+	return position;
+}
