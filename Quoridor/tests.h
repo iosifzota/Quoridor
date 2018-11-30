@@ -7,16 +7,53 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <tuple>
+using std::pair;
+using std::tuple;
 using std::string;
 using std::string_view;
 using std::cout;
 using std::endl;
 using std::cin;
 
+enum class GameState :char {
+	Moving,
+	Placing
+};
+
+using Place = std::pair<Position, Direction>;
+
+struct Err {
+	Err(const char* str, bool exit = false) :
+		m_msg{ str },
+		m_exit{ exit }
+	{}
+	string_view view() const {
+		return m_msg.c_str();
+	}
+	bool exit() const {
+		return m_exit;
+	}
+
+	bool m_exit;
+	const string m_msg;
+};
+
+struct Exit : Err {
+	Exit(const char* str) :
+		Err(str, true)
+	{}
+};
+
 void test_board();
 void test_pieces_handle();
-void player_game_loop(Player&, Board&);
+void player_game_loop(Player&, Board&, PiecesHandle& ph);
 variant<Direction, string_view> input_to_direction();
+variant<Position, string_view> input_to_position();
+optional<GameState> input_to_state();
+variant<Direction, Place, Err> read_input();
+
+variant<Place, Err> input_to_place();
 
 void tests()
 {
