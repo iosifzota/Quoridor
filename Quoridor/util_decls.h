@@ -9,17 +9,25 @@ using OptRef = optional<ref_wrapper<T>>;
 
 enum class GameType : char {
 	TwoPlayers = 2,
+	ThreePlayers = 3,
 	FourPlayers = 4
 };
 
 static inline const char* GameTypeToString(GameType gt)
 {
 	static const char twoPlayersStr[] = "TwoPlayers";
+	static const char threePlayersStr[] = "ThreePlayers";
 	static const char fourPlayersStr[] = "FourPlayers";
 
-	if (gt == GameType::TwoPlayers)
+	switch (gt)
+	{
+	case GameType::TwoPlayers:
 		return twoPlayersStr;
-	return fourPlayersStr;
+	case GameType::ThreePlayers:
+		return threePlayersStr;
+	case GameType::FourPlayers:
+		return fourPlayersStr;
+	}
 }
 
 #ifdef _WIN32

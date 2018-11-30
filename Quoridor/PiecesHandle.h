@@ -27,7 +27,7 @@ public:
 
 private:
 	const size_t m_playerCount;
-	static const size_t TOTAL_WALLS = 16;
+	static const size_t TOTAL_WALLS = 20;
 	static const size_t MAX_PLAYERS = 4;
 	array<Pawn, MAX_PLAYERS> m_pawns;
 

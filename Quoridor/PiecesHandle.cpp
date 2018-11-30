@@ -2,13 +2,14 @@
 #include "Player.h"
 
 PiecesHandle::PiecesHandle(GameType gameType) :
-	m_playerCount((int)gameType),
+	m_playerCount(static_cast<int>(gameType)),
 	m_pawnsCount(),
 	m_usedPawn(),
-	m_wallsPerPlayer(TOTAL_WALLS / (int)gameType)
+	m_wallsPerPlayer(TOTAL_WALLS / static_cast<int>(gameType))
 {
-	static_assert((int)GameType::TwoPlayers == 2);
-	static_assert((int)GameType::FourPlayers == 4);
+	static_assert(static_cast<int>(GameType::TwoPlayers) == 2);
+	static_assert(static_cast<int>(GameType::ThreePlayers) == 3);
+	static_assert(static_cast<int>(GameType::FourPlayers) == 4);
 }
 
 OptRef<Pawn> PiecesHandle::GetPawn(Direction direction, const Position& pos)
