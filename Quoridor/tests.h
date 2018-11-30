@@ -155,6 +155,42 @@ void test_pieces_handle()
 	}
 }
 
+variant<Direction, Place, Err> read_input()
+{
+	auto gameState = GameState::Moving;
+
+	if (auto gameStateRead = input_to_state()) {
+		if (gameStateRead.value() != gameState)
+			gameState = gameStateRead.value();
+	}
+
+	switch (gameState)
+	{
+	case GameState::Moving: {
+		auto ioResult = input_to_direction();
+
+		if (std::holds_alternative<string_view>(ioResult))
+			return Err(std::get<string_view>(ioResult).data());
+
+		// exit on None direction
+		auto direction = std::get<Direction>(ioResult);
+		if (Direction::None == direction) {
+			return Exit("Goodbye!");
+		}
+
+		return std::get<Direction>(ioResult);
+	}
+	case GameState::Placing: {
+		auto ioResult = input_to_place();
+
+		if (std::holds_alternative<Err>(ioResult))
+			return std::get<Err>(ioResult);
+		return std::get<Place>(ioResult);
+	}
+	}
+	return Exit("[Debug]");
+}
+
 
 variant<Direction, string_view> input_to_direction()
 {
