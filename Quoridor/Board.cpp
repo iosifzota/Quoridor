@@ -4,9 +4,7 @@
 
 Pawn& Board::UpdateStateUponPassingTrench(Pawn& passing, Direction direction)
 {
-	req(Piece::validDirection(direction));
 	auto[x_old, y_old] = passing.AccessPosition(); // save current position
-	req(tiles[x_old][y_old].has_value());
 
 	// update to next position
 	Piece::ApplyDirectionMask(passing.AccessPosition(), direction);
@@ -23,56 +21,106 @@ Pawn& Board::UpdateStateUponPassingTrench(Pawn& passing, Direction direction)
 	return passing;
 }
 
-void Board::MovePawn(Pawn& candidate, Direction direction, function<void(MoveResult, Pawn&, Direction)> postMoveAction)
+void Board::MovePawn(Player& player, Direction direction, function<void(MoveResult, Pawn&, Direction)> postMoveAction)
 {
+	auto& pawn = player.AccessPawn();
+	req(IsPawnSynced(pawn));
+	req(Piece::validDirection(direction));
 	// DONE try and see what candidate state is after UpdateState
 	auto result = MoveResult::BlockedDirection;
-	auto&[x, y] = candidate.AccessPosition();
+	auto&[x, y] = pawn.AccessPosition();
 
 	switch (direction) {
-	case Direction::North: case Direction::East:
+	case Direction::North:
 		if (!trenchNorthSouth.AtBackward(x, y)) {
-			UpdateStateUponPassingTrench(candidate, direction);
+			UpdateStateUponPassingTrench(pawn, direction);
 			result = MoveResult::Success;
 		}
 		break;
-	case Direction::South: case Direction::West:
-		if (!trenchNorthSouth.AtForward(x, y)) {
-			UpdateStateUponPassingTrench(candidate, direction);
+	case Direction::West:
+		if (!trenchWestEast.AtBackward(x, y)) {
+			UpdateStateUponPassingTrench(pawn, direction);
 			result = MoveResult::Success;
 		}
+		break;
+	case Direction::South:
+		if (!trenchNorthSouth.AtForward(x, y)) {
+			UpdateStateUponPassingTrench(pawn, direction);
+			result = MoveResult::Success;
+		}
+		break;
+	case Direction::East:
+		if (!trenchWestEast.AtForward(x, y)) {
+			UpdateStateUponPassingTrench(pawn, direction);
+			result = MoveResult::Success;
+		}
+		break;
 		break;
 	default:
 		result = MoveResult::InvalidDirection;
 	}
 
-	postMoveAction(result, candidate, direction);
+	postMoveAction(result, pawn, direction);
+}
+
+// last in this file
+void Board::SetupPlayer(Player& player, int lineIndex)
+{
+	auto& pawn = player.AccessPawn();
+	req(!Piece::validPosition(pawn.GetPosition()), "Unplaced pawn should have invalid position.");
+	req(Piece::validDirection(pawn.GetOrigin()), "[Debug]");
+
+	req(lineIndex < tiles.size());
+
+	int effectiveIndex = static_cast<int>(pawn.GetOrigin());
+	// TODO take ph& as arg, and use m_usedPawn from there also?.
+	req(!m_usedPawns.test(effectiveIndex), "One player per pawn type");
+	m_usedPawns.set(effectiveIndex);
+
+	auto&[row, col] = pawn.AccessPosition();
+
+	switch (pawn.GetOrigin())
+	{
+	case Direction::North:
+		row = 0;
+		col = lineIndex;
+		break;
+	case Direction::South:
+		row = static_cast<int>(tiles.size()) - 1;
+		col = lineIndex;
+		break;
+	case Direction::East:
+		row = lineIndex;
+		col = static_cast<int>(tiles.size()) - 1;
+		break;
+	case Direction::West:
+		row = lineIndex;
+		col = 0;
+		break;
+	}
+
+	tiles[row][col].emplace(pawn);
 }
 
 
-Board::Board(GameType gameType) :
-	m_pieces{gameType}
+bool Board::IsPawnSynced(const Pawn& pawn) const
 {
-	Position pos{ 0, 0 };
-	auto&[x, y] = pos;
+	if (!Piece::validDirection(pawn.GetOrigin()) ||
+		!Piece::validPosition(pawn.GetPosition()))
+		return false;
 
-	Pawn& pawn = m_pieces.GetPawn(Direction::North, pos).value();
-	pawn.AccessPosition() = pos;
+	auto&[row, col] = pawn.GetPosition();
 
-	tiles[y][x].emplace(pawn);
+	if (!tiles[row][col].has_value())
+		return false;
 
-	std::cout << *this << "\n------------------------------------\n";
-
-	MovePawn(tiles[y][x].value(), Direction::South,
-		[](MoveResult res, Pawn& pawn, Direction direction)
-	{
-	});
+	return &tiles[row][col].value().get() == &pawn;
 }
 
 ostream& operator<<(ostream& out, const Board& board)
 {
 	auto& tiles = board.tiles;
-	auto& trenchEastWest = board.trenchEastWest;
+	auto& trenchWestEast = board.trenchWestEast;
 	auto& trenchNorthSouth = board.trenchNorthSouth;
 	const char* temp = nullptr;
 	// IDEA: implement range

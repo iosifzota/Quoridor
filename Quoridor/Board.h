@@ -3,8 +3,8 @@
 #include "using_matrix.h"
 #include "Pawn.h"
 #include "Trench.h"
-#include "PiecesHandle.h"
 #include "util_decls.h"
+#include "Player.h"
 #include <ostream>
 using std::ostream;
 
@@ -21,14 +21,18 @@ public:
 		Success
 	};
 	// Ideea: make_position<1>(x, y) that return the same instance (no?)
-	void MovePawn(Pawn& candidate, Piece::Direction, function<void(MoveResult, Pawn&, Direction)>);
+	void MovePawn(Player&, Piece::Direction, function<void(MoveResult, Pawn&, Direction)>);
 	Pawn& UpdateStateUponPassingTrench(Pawn&, Direction);
 
 	friend ostream& operator << (ostream&, const Board&);
 
-	// working on here (last time i changed tiles from optional -> OptRef)
-	Board(GameType);
+	Board();
 
+	// last
+	bool IsPawnSynced(const Pawn&) const;
+	void SetupPlayer(Player& pawn, int lineIndex);
+private:
+	Piece::DirectionChecklist m_usedPawns; // useless?
 
 public:
 	/* Learned (https://en.cppreference.com/w/cpp/language/definition):
