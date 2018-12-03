@@ -48,11 +48,8 @@ Direction charToDirection(char ch);
 void test_board();
 void test_pieces_handle();
 void player_game_loop(Player&, Board&, PiecesHandle& ph);
-variant<Direction, string_view> input_to_direction();
-variant<Position, string_view> input_to_position();
-variant<Direction, Place, Err> read_input();
-
-variant<Place, Err> input_to_place();
+variant<Position, Err> input_to_position();
+variant<Direction, Place, Err> read_input(GameState = GameState::Moving);
 
 void tests()
 {
@@ -163,139 +160,108 @@ void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
 	}
 }
 
-using ParseResult = variant<Direction, Place, Err>;
-
-template<GameState gameState>
-variant<ParseResult, monostate> applyParser(GameStateParser<gameState> parser, const string_view& line)
+variant<Direction, Err> parseDirection(const string_view& line)
 {
-	variant<ParseState, string_view> parseResult = parser(line);
+	auto parseValueToDirection = [](ParsedValue<GameState::Moving>& parsedValue, auto) {
+		return charToDirection(parsedValue);
+	};
 
-	if (std::holds_alternative<ParseState>(parseResult)) {
-		auto&[gameStateResulted, parseOption] = std::get<ParseState>(parseResult);
-
-		req(gameState == gameStateResulted);
-
-		switch (gameStateResulted)
-		{
-		case GameState::Moving:
-		{
-			auto direction = charToDirection(parseOption);
-			if (Direction::None == direction) {
-				return Exit("Goodbye!");
-			}
-			return direction;
-		}
-		case GameState::Placing:
-		{
-			// not good at all;
-			auto ioResult = input_to_place();
-			if (std::holds_alternative<Err>(ioResult))
-				return std::get<Err>(ioResult);
-			return std::get<Place>(ioResult);
-		}
-		case GameState::Quiting:
-			return Exit("Goodbye!");
-		}
-	}
-	return monostate{};
+	auto parseResult = applyParser<Direction>(line, Parse::Moving, parseValueToDirection);
+	if (std::holds_alternative<Direction>(parseResult))
+		return std::get<Direction>(parseResult);
+	return Err("Invalid direction");
 }
 
-variant<Direction, Place, Err> read_input()
+variant<Place, Err> parsePlace()
 {
-	auto gameState = GameState::Moving;
+	string line;
+	cout << "\nPlacing wall ...\nDirection: ";
+	std::getline(cin, line);
 
+	auto cancelCheck = applyParser(line, Parse::Quiting);
+	if (std::holds_alternative<Success>(cancelCheck))
+		return Err("Backing up.");
+
+	auto directionResult = parseDirection(line);
+	if (std::holds_alternative<Direction>(directionResult)) {
+		auto direction = std::get<Direction>(directionResult);
+
+		return Place{ std::get<Position>(input_to_position()),  direction };
+	}
+	return Err("Invalid direction");
+}
+
+// last
+variant<Direction, Place, Err> read_input(GameState gameState)
+{
 	string line;
 	cout << "\nAction: ";
 	std::getline(cin, line);
 
 	{
-		auto parseResult = applyParser(Parse::Moving, line);
-		if (std::holds_alternative<ParseResult>(parseResult))
-			return std::get<ParseResult>(parseResult);
+		auto parseResult = applyParser(line, Parse::Quiting);
+		if (std::holds_alternative<Success>(parseResult))
+			return Exit("Goodbye!");
 	}
 
 	{
-		auto parseResult = applyParser(Parse::Placing, line);
-		if (std::holds_alternative<ParseResult>(parseResult))
-			return std::get<ParseResult>(parseResult);
+		auto parseResult = applyParser(line, Parse::Placing);
+		if (std::holds_alternative<Success>(parseResult))
+			gameState = GameState::Placing;
 	}
 
+	switch (gameState)
 	{
-		auto parseResult = applyParser(Parse::Quiting, line);
-		if (std::holds_alternative<ParseResult>(parseResult))
-			return std::get<ParseResult>(parseResult);
+	case GameState::Moving:
+	{
+		auto parseResult = parseDirection(line);
+		if (std::holds_alternative<Direction>(parseResult))
+			return std::get<Direction>(parseResult);
+		return Err("Invalid direction");
 	}
-
-	return Err("Invalid option.");
-}
-
-
-variant<Direction, string_view> input_to_direction()
-{
-	string line;
-	cout << "\nDirection: ";
-	std::getline(cin, line);
-
-	if (line.empty())
-		return input_to_direction();
-
-	string_view sv(line.c_str());
-	size_t optionIndex = sv.find_first_of("wasdWASDqQ");
-
-	static const string_view invalidMsg("Invalid option. Usage: wasd\n");
-	if (string_view::npos == optionIndex) {
-		return invalidMsg;
+	case GameState::Placing:
+	{
+		auto parseResult = parsePlace();
+		if (std::holds_alternative<Place>(parseResult))
+			return std::get<Place>(parseResult);
+		return std::get<Err>(parseResult);
 	}
-
-	switch (sv[optionIndex]) {
-	case 'w': case 'W':
-		return Direction::North;
-	case 'a': case 'A':
-		return Direction::West;
-	case 's': case 'S':
-		return Direction::South;
-	case 'd': case 'D':
-		return Direction::East;
-	case 'q': case 'Q':
-		return Direction::None;
 	default:
-		return invalidMsg;
+		return Err("Invalid option.");
 	}
 }
 
-
-variant<Place, Err> input_to_place()
-{
-	auto ioResult = input_to_direction();
-
-	if (std::holds_alternative<string_view>(ioResult)) {
-		return Err(std::get<string_view>(ioResult).data());
-	}
-
-	auto direction = std::get<Direction>(ioResult);
-
-	if (Direction::None == direction) {
-		return Exit("Goodbye!");
-	}
-
-	return Place{ std::get<Position>(input_to_position()),  direction };
-}
-
-
-variant<Position, string_view> input_to_position()
+// todo
+variant<Position, Err> input_to_position()
 {
 	string line;
 	Position position;
 	auto&[row, col] = position;
 
 	cout << "\nPosition: ";
-	cout << "\nrow: ";
-	cin >> row;
-	cout << "\ncol: ";
-	cin >> col;
-	std::getline(cin, line); // eat \n (really strange); see 'big time what?'
 
-	return position;
+	try {
+		cout << "\nrow: "; cin >> row;
+
+		if (cin.fail())
+			throw "Fail";
+
+		cout << "\ncol: "; cin >> col;
+
+		if (cin.fail())
+			throw "Fail";
+
+		std::getline(cin, line);
+		return position;
+	}
+	catch (...) {
+		cin.clear();
+		std::getline(cin, line);
+		return Err("Invalid number inserted.");
+	}
+	cin.clear();
+	std::getline(cin, line);
+	return Err("Invalid number inserted.");
 }
 
 
@@ -339,3 +305,10 @@ Direction charToDirection(char ch)
 		return Direction::None; // silence warning
 	}
 }
+
+
+//void cinClear()
+//{
+//	cin.clear();
+//	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+//}
