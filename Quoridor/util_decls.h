@@ -3,6 +3,7 @@
 #include "using_functional.h"
 #include "using_optional.h"
 #include "using_variant.h"
+#include "util_templates.h"
 
 template <typename T>
 using OptRef = optional<ref_wrapper<T>>;
