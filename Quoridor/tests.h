@@ -45,19 +45,19 @@ struct Exit : Err {
 Direction charToDirection(char ch);
 
 
-void test_board();
-void test_pieces_handle();
-void player_game_loop(Player&, Board&, PiecesHandle& ph);
-variant<Position, Err> input_to_position();
-variant<Direction, Place, Err> read_input(GameState = GameState::Moving);
+void testBoard();
+void testPiecesHandle();
+void playerGameLoop(Player&, Board&, PiecesHandle& ph);
+variant<Position, Err> inputToPosition();
+variant<Direction, Place, Err> readInput(GameState = GameState::Moving);
 
 void tests()
 {
-	test_board();
-	test_pieces_handle();
+	testBoard();
+	testPiecesHandle();
 }
 
-void test_board()
+void testBoard()
 {
 	cout << __FUNCTION__ << ":\n";
 
@@ -93,18 +93,18 @@ void test_board()
 		cout << b << endl;
 
 		// here last time
-		player_game_loop(player, b, ph);
+		playerGameLoop(player, b, ph);
 	}
 }
 
-void player_game_loop(Player& player, Board& b, PiecesHandle& ph)
+void playerGameLoop(Player& player, Board& b, PiecesHandle& ph)
 {
 	cout << __FUNCTION__ << " coming up.\n";
 	system(SYS_PAUSE); system(SYS_CLEAR);
 	cout << b << endl;
 
 	while (true) {
-		variant<Direction, Place, Err> ioResult = read_input();
+		variant<Direction, Place, Err> ioResult = readInput();
 
 		if (std::holds_alternative<Err>(ioResult)) {
 			const Err& err = std::get<Err>(ioResult);
@@ -186,13 +186,13 @@ variant<Place, Err> parsePlace()
 	if (std::holds_alternative<Direction>(directionResult)) {
 		auto direction = std::get<Direction>(directionResult);
 
-		return Place{ std::get<Position>(input_to_position()),  direction };
+		return Place{ std::get<Position>(inputToPosition()),  direction };
 	}
 	return Err("Invalid direction");
 }
 
 // last
-variant<Direction, Place, Err> read_input(GameState gameState)
+variant<Direction, Place, Err> readInput(GameState gameState)
 {
 	string line;
 	cout << "\nAction: ";
@@ -232,7 +232,7 @@ variant<Direction, Place, Err> read_input(GameState gameState)
 }
 
 // todo
-variant<Position, Err> input_to_position()
+variant<Position, Err> inputToPosition()
 {
 	string line;
 	Position position;
@@ -265,7 +265,7 @@ variant<Position, Err> input_to_position()
 }
 
 
-void test_pieces_handle()
+void testPiecesHandle()
 {
 	cout << __FUNCTION__ << ":\n";
 	PiecesHandle ph(GameType::TwoPlayers);
