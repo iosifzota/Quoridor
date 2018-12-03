@@ -169,6 +169,7 @@
     <ClInclude Include="using_functional.h" />
     <ClInclude Include="using_variant.h" />
     <ClInclude Include="util_decls.h" />
+    <ClInclude Include="util_templates.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
