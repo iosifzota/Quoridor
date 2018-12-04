@@ -32,6 +32,13 @@ void Piece::ApplyDirectionMask(Position& pos, Direction direction)
 	addPosition(pos, directionMask[(int)direction]);
 }
 
+Position Piece::GetDirectionMask(Direction direction)
+{
+	if (Direction::None == direction)
+		return { 0, 0 };
+	return directionMask[static_cast<int>(direction)];
+}
+
 bool Piece::validDirection(Direction direction)
 {
 	return (direction != INVALID_DIRECTION) ? true : false;

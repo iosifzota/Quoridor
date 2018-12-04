@@ -32,6 +32,7 @@ public:
 
 	// procedures
 	static void ApplyDirectionMask(Position&, Direction);
+	static Position GetDirectionMask(Direction);
 
 	// flags
 	static const Position INVALID_POSITION;
