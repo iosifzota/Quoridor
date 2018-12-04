@@ -2,6 +2,9 @@
 
 #include "util_templates.h"
 #include <string_view>
+#include <string>
+
+using std::string;
 using std::string_view;
 
 enum class GameState :char {
@@ -44,6 +47,30 @@ namespace Parse {
 }
 
 // idea: and_if
+class SimpleParser
+{
+public:
+	SimpleParser(const string_view& keychars) :
+		m_keychars{ keychars }
+	{}
+
+	inline optional<char> operator()(const string_view& line)
+	{
+		if (line.empty()) {
+			return {};
+		}
+
+		size_t optionIndex = line.find_first_of(m_keychars);
+		if (string_view::npos == optionIndex) {
+			return {};
+		}
+
+		return line[optionIndex];
+	}
+
+private:
+	const string m_keychars;
+};
 
 template <GameState gameState>
 class GameStateParser
@@ -82,7 +109,9 @@ namespace Parse {
 template<typename Result, GameState gameState>
 using Function = ignore_deduction_t<function<Result(ParsedValue<gameState>&, GameState)>>;
 
-struct Success {}; // tag
+//using ParseResult = variant<Direction, Place, Err>;
+
+
 
 template<GameState gameState>
 variant<Success, string_view> applyParser(
