@@ -5,6 +5,10 @@
 #include "using_variant.h"
 #include "util_templates.h"
 
+struct Success {}; // tag
+struct Fail {};
+
+
 template <typename T>
 using OptRef = optional<ref_wrapper<T>>;
 
